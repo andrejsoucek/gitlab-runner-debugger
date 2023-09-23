@@ -1,4 +1,4 @@
-# gitlab-runner-debugger
+# Local DinD Runner
 
 To install dependencies:
 

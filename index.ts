@@ -1,12 +1,12 @@
 import { Command } from 'commander';
-import { actionJobs } from "./action/jobs.ts";
-import { actionRunJob } from "./action/run-job.ts";
+import { actionJobs } from '@action/jobs.ts';
+import { actionRunJob } from '@action/run-job.ts';
 
 const program = new Command();
 
 program
-    .name('grd')
-    .description('Run Gitlab DinD jobs locally!')
+    .name('glr')
+    .description('Gitlab Local Runner - Run Gitlab DinD jobs locally!')
     .version('0.0.1');
 
 program.command('jobs')
