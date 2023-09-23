@@ -1,0 +1,22 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "tsconfig.json",
+        "tsconfigRootDir": ".",
+        "sourceType": "module"
+    },
+    "plugins": ["@typescript-eslint/eslint-plugin"],
+    "extends": ["@betsys-eslint/typescript"],
+    "root": true,
+    "env": {
+        "node": true,
+        "jest": true
+    },
+    "ignorePatterns": [
+        ".eslintrc.js", "dist"
+    ],
+    "rules": {
+        "arrow-body-style": "off",
+        "no-console": "off"
+    }
+}
