@@ -50,10 +50,15 @@ export const actionRunJob = async (gitlabYamlFilePath: string, jobName: string):
         console.error(`Job ${jobName} not found.`);
         process.exit(1);
     }
+    if (job.needs && job.needs.length) {
+        console.warn(
+            clc.black.bgYellow(`Warning: This job depends on ${clc.black.bold(job.needs)} job. There might be missing dependencies.`)
+        );
+    }
     const imageName = getImageName(job.image);
     console.info(`${clc.black.bold.bgGreen('Image:')} ${imageName}`);
     const script = Array.isArray(job.script) ? job.script.join(' && ') : job.script;
-    console.info(`${clc.black.bold.bgGreen('Image:')} ${script}`);
+    console.info(`${clc.black.bold.bgGreen('Script:')} ${script}`);
     console.log(clc.black.bold.bgGreen('Job output:'));
     console.log(clc.bgWhite('\n'));
 
