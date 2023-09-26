@@ -5,6 +5,8 @@ This is a simple tool that simulates a docker-in-docker run locally. It is inten
 ## Usage
 1. Download `glr` binary
 1. Run `./glr -h` in your terminal to see the available commands
+   1. If you want to pass env variables to the container, 
+      simply run the command with the env vars set: `MY_VAR=foo ./glr run-job <yaml-path> <job-name>` 
 
 ## Development
 
