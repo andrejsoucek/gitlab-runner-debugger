@@ -1,4 +1,4 @@
-import { Image } from './image.interface.ts';
+import { Image } from '@interface/image.interface.ts';
 
 export interface Job {
     name: string;
@@ -12,6 +12,7 @@ export interface Job {
         url?: string;
     };
     needs?: string[];
+    before_script?: string[];
     script: string | string[];
     image?: string | Image;
     services?: string[];

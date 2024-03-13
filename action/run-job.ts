@@ -6,6 +6,7 @@ import { Errorlike, Subprocess } from 'bun';
 import { getJobs } from '@service/get-jobs.ts';
 import { getImageName } from '@utils/get-image-name.ts';
 import { Job } from '@interface/job.interface.ts';
+import { Image } from '@interface/image.interface';
 
 const getEnvs = (env: Record<string, string>): string[] => {
     const envs = [
@@ -50,11 +51,25 @@ export const actionRunJob = async (gitlabYamlFilePath: string, jobName: string):
         console.error(`Job ${jobName} not found.`);
         process.exit(1);
     }
+
+    if (job.image && typeof job.image !== 'string' && (job.image as Image).entrypoint) {
+        console.warn(
+            clc.black.bgYellow(`Warning: This job has the ${clc.black.bold("entrypoint")} defined. It might not work as expected.`)
+        );
+    }
+
+    if (job.before_script && job.before_script.length) {
+        console.warn(
+            clc.black.bgYellow(`Warning: This job has the ${clc.black.bold("before_script")} defined. It might not work as expected.`)
+        );
+    }
+
     if (job.needs && job.needs.length) {
         console.warn(
             clc.black.bgYellow(`Warning: This job depends on ${clc.black.bold(job.needs)} job. There might be missing dependencies.`)
         );
     }
+
     const imageName = getImageName(job.image);
     console.info(`${clc.black.bold.bgGreen('Image:')} ${imageName}`);
     const script = Array.isArray(job.script) ? job.script.join(' && ') : job.script;
@@ -75,7 +90,8 @@ export const actionRunJob = async (gitlabYamlFilePath: string, jobName: string):
             script,
         ],
         {
-            stdout: 'pipe',
+            stdout: 'inherit',
+            stderr: 'inherit',
             cwd,
             async onExit(subprocess: Subprocess, exitCode: number | null, signalCode: number | null, error?: Errorlike): Promise<void> {
                 if (exitCode === 0) {
@@ -96,9 +112,4 @@ export const actionRunJob = async (gitlabYamlFilePath: string, jobName: string):
             },
         }
     );
-    const decoder = new TextDecoder();
-    // eslint-disable-next-line no-restricted-syntax
-    for await (const line of dockerProcess.stdout) {
-        console.log(decoder.decode(line));
-    }
 };
