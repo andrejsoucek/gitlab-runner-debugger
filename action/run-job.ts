@@ -74,21 +74,41 @@ export const actionRunJob = async (gitlabYamlFilePath: string, jobName: string):
     console.info(`${clc.black.bold.bgGreen('Image:')} ${imageName}`);
     const script = Array.isArray(job.script) ? job.script.join(' && ') : job.script;
     console.info(`${clc.black.bold.bgGreen('Script:')} ${script}`);
+    const entrypoint = (job.image === undefined || typeof job.image === 'string') ? [] : job.image.entrypoint;
+    const entrypointStr = Array.isArray(entrypoint) ? entrypoint.join(' ') : entrypoint;
+    console.info(`${clc.black.bold.bgGreen('Entrypoint:')} ${entrypointStr}`);
     console.log(clc.black.bold.bgGreen('Job output:'));
     console.log(clc.bgWhite('\n'));
 
     const cwd = dirname(gitlabYamlFilePath);
     const user = os.userInfo();
+    const cmd = [
+        'docker', 'run', '--rm',
+        '-v', `${cwd}:/app`,
+        '-w', '/app',
+        '--user', `${user.uid}:${user.gid}`,
+        ...getEnvs(Object.assign(process.env, job.variables || {})),
+    ];
+    const isCommandEntrypoint = entrypoint && Array.isArray(entrypoint) && entrypoint.length > 1 && entrypoint[1] === '-c';
+    if (entrypoint && entrypointStr) {
+        if (isCommandEntrypoint) {
+            cmd.push("--entrypoint", entrypoint[0]);
+        } else {
+            cmd.push("--entrypoint", entrypointStr);
+        }
+    }
+    cmd.push(imageName);
+
+    if (isCommandEntrypoint) {
+        cmd.push(entrypoint[1]);
+    }
+
+    if (script) {
+        cmd.push(script)
+    }
+
     const dockerProcess = Bun.spawn(
-        [
-            'docker', 'run', '--rm',
-            '-v', `${cwd}:/app`,
-            '-w', '/app',
-            '--user', `${user.uid}:${user.gid}`,
-            ...getEnvs(Object.assign(process.env, job.variables || {})),
-            imageName,
-            script,
-        ],
+        cmd,
         {
             stdout: 'inherit',
             stderr: 'inherit',
