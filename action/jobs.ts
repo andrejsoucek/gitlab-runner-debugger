@@ -12,7 +12,7 @@ export const actionJobs = async (gitlabYamlFilePath: string): Promise<void> => {
                 console.log(`  - ${job.name} ${clc.green('✔ Locally runnable')}`);
                 console.log(`    - image: ${getImageName(job.image)}`);
             } else {
-                console.log(`  - ${job.name} ${clc.red('❌ Not a DinD job.')}`);
+                console.log(`  - ${job.name} ${clc.red('❌ Not a docker job.')}`);
             }
         });
     });
